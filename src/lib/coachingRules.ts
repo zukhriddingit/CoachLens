@@ -68,7 +68,7 @@ export function analyzeForehand(features: SwingFeatures): CoachingResult {
       title: "Camera angle needs improvement",
       mainFix: "Record from the side/front-side with your full body visible.",
       whyItMatters:
-        "CoachLens needs clear pose landmarks for the feet, hips, shoulders, and racket-side arm before it can link a correction to reliable evidence.",
+        "CourtLens needs clear pose landmarks for the feet, hips, shoulders, and racket-side arm before it can link a correction to reliable evidence.",
       evidence: [
         `Average pose confidence was ${features.avgConfidence.toFixed(2)}, below the 0.45 demo threshold.`,
         `Estimated contact window: ${seconds(features.contactFrameTime)}.`,
@@ -92,7 +92,7 @@ export function analyzeForehand(features: SwingFeatures): CoachingResult {
         "Your hitting wrist stays too close to the hip during the estimated contact window, which can make the forehand feel late and reduce extension.",
       evidence: [
         `Estimated contact window: ${seconds(features.contactFrameTime)}.`,
-        `Right-wrist reach was ${features.wristForwardReach.toFixed(2)} torso lengths; CoachLens target starts near ${tennisForehandProfile.targetWristReachRange[0].toFixed(2)}.`,
+        `Right-wrist reach was ${features.wristForwardReach.toFixed(2)} torso lengths; CourtLens target starts near ${tennisForehandProfile.targetWristReachRange[0].toFixed(2)}.`,
         "Follow-through and elbow checks are secondary here; the strongest signal is spacing near the contact proxy.",
       ],
       drill:
@@ -158,7 +158,7 @@ export function analyzeForehand(features: SwingFeatures): CoachingResult {
       evidence: [
         `Estimated contact window: ${seconds(features.contactFrameTime)}.`,
         `Post-contact wrist rise measured ${features.followThroughHeight.toFixed(2)} normalized screen units.`,
-        "CoachLens uses a single-camera heuristic, so this is a simple wrist-path signal rather than a full racket-path model.",
+        "CourtLens uses a single-camera heuristic, so this is a simple wrist-path signal rather than a full racket-path model.",
       ],
       drill: "High-finish drill: shadow swing and finish with your hitting hand near shoulder height.",
       coachQuestion: "Did your racket naturally finish high, or did it stop right after contact?",
@@ -174,7 +174,7 @@ export function analyzeForehand(features: SwingFeatures): CoachingResult {
     title: "Forehand shape looks solid",
     mainFix: "Keep repeating the same contact point and finish shape.",
     whyItMatters:
-      "Your spacing, elbow angle, and follow-through are within the simple CoachLens target range.",
+      "Your spacing, elbow angle, and follow-through are within the simple CourtLens target range.",
     evidence: [
       `Estimated contact window: ${seconds(features.contactFrameTime)}.`,
       "Wrist reach, elbow angle, and follow-through landed inside the current tennis forehand profile.",
@@ -218,7 +218,7 @@ export function reanalyzeForehand(features: SwingFeatures, disputedRuleId?: stri
     return {
       ...analyzeForehand(features),
       recheckNote:
-        "AI coach review requested a re-check, but no stronger alternate signal was found. CoachLens kept the original measurement-led result.",
+        "AI coach review requested a re-check, but no stronger alternate signal was found. CourtLens kept the original measurement-led result.",
     };
   }
 
@@ -246,6 +246,6 @@ export function reanalyzeForehand(features: SwingFeatures, disputedRuleId?: stri
     recheckNote:
       revised.ruleId === disputedRuleId
         ? "AI coach review requested a re-check, but the same measurement signal remained strongest."
-        : `AI coach review requested a re-check, so CoachLens skipped the disputed ${disputedRuleId ?? "first"} signal and selected the next strongest local measurement.`,
+        : `AI coach review requested a re-check, so CourtLens skipped the disputed ${disputedRuleId ?? "first"} signal and selected the next strongest local measurement.`,
   };
 }

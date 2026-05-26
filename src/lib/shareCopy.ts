@@ -1,13 +1,14 @@
 import type { CoachingResult, ShareCopyPack } from "../types";
 
-const API_BASE = import.meta.env.VITE_COACHLENS_API_URL ?? "http://127.0.0.1:8787";
+const API_BASE =
+  import.meta.env.VITE_COURTLENS_API_URL ?? import.meta.env.VITE_COACHLENS_API_URL ?? "http://127.0.0.1:8787";
 
 export function fallbackShareCopy(result: CoachingResult): ShareCopyPack {
   return {
     instagramCaption: `Clean swing check: ${result.score}/100. Smooth timing, better spacing, and one rep closer.`,
     snapchatCaption: "This swing deserves the story.",
     highlightText: "Smooth timing. Clean contact. Great follow-through.",
-    hashtags: ["#CoachLensCourt", "#Tennis", "#Forehand", "#SwingCheck", "#TennisTraining"],
+    hashtags: ["#CourtLens", "#Tennis", "#Forehand", "#SwingCheck", "#TennisTraining"],
     styles: [
       { style: "Hype", caption: "Locked in. This one felt clean." },
       { style: "Athlete", caption: "Working on consistency one swing at a time." },

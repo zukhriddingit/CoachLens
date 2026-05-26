@@ -12,7 +12,7 @@ export function Hero({ onDemo }: HeroProps) {
           <span className="pulse-dot" />
           Evidence-linked coaching for hackathon demos
         </div>
-        <h1>CoachLens Court</h1>
+        <h1>CourtLens</h1>
         <p className="hero__subtitle">AI micro-coaching for tennis forehands</p>
         <p className="hero__tagline">One clip -&gt; one fix -&gt; one drill</p>
         <div className="hero__actions">

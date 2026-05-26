@@ -41,7 +41,7 @@ export function ResultCard({
           <p className="mini-label">Evidence-linked coaching</p>
           <h2>{result.title}</h2>
         </div>
-        <div className="score-pill" aria-label={`CoachLens score ${result.score} out of 100`}>
+        <div className="score-pill" aria-label={`CourtLens score ${result.score} out of 100`}>
           <span>{result.score}</span>
           <small>score</small>
         </div>

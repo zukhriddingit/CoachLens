@@ -6,7 +6,8 @@ type ReviewFrame = {
   mimeType: "image/jpeg";
 };
 
-const API_BASE = import.meta.env.VITE_COACHLENS_API_URL ?? "http://127.0.0.1:8787";
+const API_BASE =
+  import.meta.env.VITE_COURTLENS_API_URL ?? import.meta.env.VITE_COACHLENS_API_URL ?? "http://127.0.0.1:8787";
 
 function waitForMetadata(video: HTMLVideoElement): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -84,7 +85,7 @@ export function mockAIReview(reason = "Gemini is not configured yet."): AIJudgeR
     visualRationale:
       missingKey
         ? "The pose engine produced a plausible coaching signal, but this panel is using a local fallback until the Gemini backend has an API key."
-        : "The pose engine produced a plausible coaching signal, but the AI review could not complete, so CoachLens is showing a local fallback.",
+        : "The pose engine produced a plausible coaching signal, but the AI review could not complete, so CourtLens is showing a local fallback.",
     saferWording: "Treat this as a single-camera cue: try meeting the ball a little farther in front of your right hip.",
     confidenceNote: setupHint,
     model: "local-fallback",

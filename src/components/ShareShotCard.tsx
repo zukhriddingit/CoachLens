@@ -38,7 +38,7 @@ export function ShareShotCard({ score, videoUrl, status, copy }: ShareShotCardPr
     const text = fullCaption(copy);
     if (navigator.share) {
       await navigator.share({
-        title: "CoachLens Court swing",
+        title: "CourtLens swing",
         text,
       });
       return;
@@ -62,7 +62,7 @@ export function ShareShotCard({ score, videoUrl, status, copy }: ShareShotCardPr
     if (!videoUrl) return;
     const link = document.createElement("a");
     link.href = videoUrl;
-    link.download = "coachlens-swing-clip.mp4";
+    link.download = "courtlens-swing-clip.mp4";
     document.body.appendChild(link);
     link.click();
     link.remove();

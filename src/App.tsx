@@ -143,7 +143,7 @@ export default function App() {
       const changed = revisedResult.title !== nextResult.title || revisedResult.mainFix !== nextResult.mainFix;
       const note =
         revisedResult.recheckNote ??
-        "AI coach review requested a re-check, so CoachLens ran a second local measurement pass.";
+        "AI coach review requested a re-check, so CourtLens ran a second local measurement pass.";
       const finalResult = changed ? revisedResult : { ...nextResult, recheckNote: note };
 
       setRecheckNote(changed ? note : `${note} The original correction stayed in place.`);
@@ -215,7 +215,7 @@ export default function App() {
 
   async function handleAnalyze() {
     if (!file || !videoUrl || uploadError) {
-      await runDemo(!file ? "No video uploaded, so CoachLens used the sample demo result." : "Unsupported file type, so CoachLens used the sample demo result.");
+      await runDemo(!file ? "No video uploaded, so CourtLens used the sample demo result." : "Unsupported file type, so CourtLens used the sample demo result.");
       return;
     }
 
@@ -263,7 +263,7 @@ export default function App() {
       } else {
         const fallbackResult = addDemoLimit(
           demoResult,
-          "MediaPipe did not return usable landmarks, so CoachLens used the sample demo result.",
+          "MediaPipe did not return usable landmarks, so CourtLens used the sample demo result.",
         );
         setResult(fallbackResult);
         setCropNote("Using original clip: pose landmarks were not usable enough to isolate a swing.");
@@ -274,8 +274,8 @@ export default function App() {
         void runShareCopy(fallbackResult);
       }
     } catch (error) {
-      console.warn("CoachLens analysis failed", error);
-      const fallbackResult = addDemoLimit(demoResult, "Real video analysis failed, so CoachLens used the sample demo result.");
+      console.warn("CourtLens analysis failed", error);
+      const fallbackResult = addDemoLimit(demoResult, "Real video analysis failed, so CourtLens used the sample demo result.");
       setResult(fallbackResult);
       setFrames([]);
       setCropNote("Using original clip: real analysis failed before swing cropping.");

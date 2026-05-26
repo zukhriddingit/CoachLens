@@ -5,7 +5,7 @@ import { spawn } from "node:child_process";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 
-const PORT = Number(process.env.COACHLENS_API_PORT ?? 8787);
+const PORT = Number(process.env.COURTLENS_API_PORT ?? process.env.COACHLENS_API_PORT ?? 8787);
 const MAX_VIDEO_BYTES = 80 * 1024 * 1024;
 
 function aiProvider() {
@@ -130,7 +130,7 @@ function safeJsonParse(text) {
 
 function buildPrompt(payload) {
   return [
-    "You are the AI Coach Review layer for CoachLens Court, a cautious tennis forehand micro-coach.",
+    "You are the AI Coach Review layer for CourtLens, a cautious tennis forehand micro-coach.",
     "Your job is to judge whether the pose-engine correction is visually plausible from sampled frames and measurements.",
     "Do not diagnose injury. Do not claim professional coaching accuracy. Do not pretend ball contact is exact.",
     "Use the phrases 'estimated contact window' and 'single-camera heuristic' when relevant.",
@@ -149,7 +149,7 @@ function buildPrompt(payload) {
 
 function buildSharePrompt(payload) {
   return [
-    "You create short social captions for CoachLens Court tennis forehand clips.",
+    "You create short social captions for CourtLens tennis forehand clips.",
     "The player scored at least 80, so the copy should be upbeat and share-worthy without claiming professional accuracy.",
     "Do not mention injury, diagnosis, or exact biomechanics. Keep it sports-social, concise, and natural.",
     "Return only strict JSON with this shape:",
@@ -274,7 +274,7 @@ The selected OpenRouter DeepSeek model is being used as a text judge. Review the
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
       "HTTP-Referer": "http://127.0.0.1:5173",
-      "X-Title": "CoachLens Court",
+      "X-Title": "CourtLens",
     },
     body: JSON.stringify({
       model,
@@ -336,7 +336,7 @@ function fallbackShareCopy(payload) {
     instagramCaption: `Clean swing check: ${score}/100. Smooth timing, better spacing, and one rep closer.`,
     snapchatCaption: "This swing deserves the story.",
     highlightText: "Smooth timing. Clean contact. Great follow-through.",
-    hashtags: ["#CoachLensCourt", "#Tennis", "#Forehand", "#SwingCheck", "#TennisTraining"],
+    hashtags: ["#CourtLens", "#Tennis", "#Forehand", "#SwingCheck", "#TennisTraining"],
     styles: [
       { style: "Hype", caption: "Locked in. This one felt clean." },
       { style: "Athlete", caption: "Working on consistency one swing at a time." },
@@ -448,7 +448,7 @@ async function callOpenRouterShareCopy(payload) {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
       "HTTP-Referer": "http://127.0.0.1:5173",
-      "X-Title": "CoachLens Court",
+      "X-Title": "CourtLens",
     },
     body: JSON.stringify({
       model: openRouterModel(),
@@ -536,7 +536,7 @@ const server = createServer(async (request, response) => {
       }
 
       const videoBuffer = await readBinaryBody(request);
-      workspace = await mkdtemp(join(tmpdir(), "coachlens-trim-"));
+      workspace = await mkdtemp(join(tmpdir(), "courtlens-trim-"));
       const inputPath = join(workspace, `input.${extension}`);
       const outputPath = join(workspace, "swing-clip.mp4");
       await writeFile(inputPath, videoBuffer);
@@ -620,7 +620,7 @@ const server = createServer(async (request, response) => {
 server.on("error", (error) => {
   if (error.code === "EADDRINUSE") {
     console.error(
-      `CoachLens AI proxy could not start because http://127.0.0.1:${PORT} is already in use.`,
+      `CourtLens AI proxy could not start because http://127.0.0.1:${PORT} is already in use.`,
     );
     console.error("Stop the existing dev server or run: lsof -ti tcp:8787 | xargs kill");
     process.exit(1);
@@ -630,7 +630,7 @@ server.on("error", (error) => {
 });
 
 server.listen(PORT, "127.0.0.1", () => {
-  console.log(`CoachLens AI proxy listening on http://127.0.0.1:${PORT}`);
+  console.log(`CourtLens AI proxy listening on http://127.0.0.1:${PORT}`);
   console.log(`AI provider: ${aiProvider()}`);
   console.log(`Active model: ${activeModel()}`);
 });

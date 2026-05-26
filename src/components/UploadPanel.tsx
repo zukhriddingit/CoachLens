@@ -88,7 +88,7 @@ export function UploadPanel({
             <p className="mini-label">Demo-safe fallback</p>
             <h3>Presentation never depends on perfect pose detection.</h3>
             <p>
-              If MediaPipe fails or no video is uploaded, CoachLens Court can still show a realistic
+              If MediaPipe fails or no video is uploaded, CourtLens can still show a realistic
               evidence-linked coaching moment.
             </p>
           </div>

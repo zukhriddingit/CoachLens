@@ -292,7 +292,7 @@ export function detectSwingSegment(frames: FramePose[], duration: number, buffer
       end: Math.min(duration, 8),
       peakTime: frames[Math.floor(frames.length / 2)]?.time ?? 0,
       confidence: "Low",
-      reason: "Motion stayed close to idle levels, so CoachLens kept the first short clip as a fallback.",
+      reason: "Motion stayed close to idle levels, so CourtLens kept the first short clip as a fallback.",
     };
   }
 
