@@ -13,7 +13,7 @@ function aiProvider() {
 }
 
 function geminiModel() {
-  return process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
+  return process.env.GEMINI_MODEL ?? "gemini-2.5-flash-lite";
 }
 
 function openRouterModel() {
@@ -260,6 +260,13 @@ async function callOpenRouterReview(payload, reason = "Gemini unavailable.") {
       url: `data:${frame.mimeType ?? "image/jpeg"};base64,${frame.data}`,
     },
   }));
+  const model = openRouterModel();
+  const supportsVision = !model.startsWith("deepseek/");
+  const prompt = supportsVision
+    ? buildPrompt(payload)
+    : `${buildPrompt(payload)}
+
+The selected OpenRouter DeepSeek model is being used as a text judge. Review the pose-engine correction from the structured measurements and coaching result instead of raw video frames.`;
 
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
@@ -270,11 +277,11 @@ async function callOpenRouterReview(payload, reason = "Gemini unavailable.") {
       "X-Title": "CoachLens Court",
     },
     body: JSON.stringify({
-      model: openRouterModel(),
+      model,
       messages: [
         {
           role: "user",
-          content: [{ type: "text", text: buildPrompt(payload) }, ...imageParts],
+          content: supportsVision ? [{ type: "text", text: prompt }, ...imageParts] : prompt,
         },
       ],
       temperature: 0.2,
@@ -310,7 +317,7 @@ async function callOpenRouterReview(payload, reason = "Gemini unavailable.") {
           visualRationale: parsed.visualRationale,
           saferWording: parsed.saferWording,
           confidenceNote: parsed.confidenceNote,
-          model: openRouterModel(),
+          model,
           source: "openrouter",
         },
       },

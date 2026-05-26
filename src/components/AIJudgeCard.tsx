@@ -37,7 +37,7 @@ export function AIJudgeCard({ status, review, onRetry, canRetry }: AIJudgeCardPr
     <article className={`ai-judge-card ai-judge-card--${review.source}`}>
       <div className="ai-judge-card__header">
         <div>
-          <p className="mini-label">Multimodal judge</p>
+          <p className="mini-label">AI coach judge</p>
           <h3>AI Coach Review</h3>
         </div>
         <div className="agreement-pill">
