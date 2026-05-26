@@ -6,10 +6,30 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 
 const PORT = Number(process.env.COACHLENS_API_PORT ?? 8787);
-const AI_PROVIDER = process.env.AI_PROVIDER ?? "auto";
-const MODEL = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
-const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL ?? "openai/gpt-4o-mini";
 const MAX_VIDEO_BYTES = 80 * 1024 * 1024;
+
+function aiProvider() {
+  return process.env.AI_PROVIDER ?? "auto";
+}
+
+function geminiModel() {
+  return process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
+}
+
+function openRouterModel() {
+  return process.env.OPENROUTER_MODEL ?? "openai/gpt-4o-mini";
+}
+
+function geminiFailure(statusCode, error) {
+  if (aiProvider() === "gemini") {
+    return {
+      statusCode,
+      payload: { error },
+    };
+  }
+
+  return null;
+}
 
 async function loadLocalEnv() {
   try {
@@ -18,9 +38,7 @@ async function loadLocalEnv() {
       const trimmed = line.trim();
       if (!trimmed || trimmed.startsWith("#") || !trimmed.includes("=")) continue;
       const [key, ...valueParts] = trimmed.split("=");
-      if (!process.env[key]) {
-        process.env[key] = valueParts.join("=").replace(/^["']|["']$/g, "");
-      }
+      process.env[key] = valueParts.join("=").replace(/^["']|["']$/g, "");
     }
   } catch {
     // Missing .env.local is fine. The endpoint returns setup guidance.
@@ -144,12 +162,17 @@ function buildSharePrompt(payload) {
 }
 
 async function callGemini(payload) {
-  if (AI_PROVIDER === "openrouter") {
+  if (aiProvider() === "openrouter") {
     return callOpenRouterReview(payload, "OpenRouter selected as AI provider.");
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
+    const forcedFailure = geminiFailure(
+      503,
+      "Gemini is not configured. Add GEMINI_API_KEY to .env.local and restart npm run dev.",
+    );
+    if (forcedFailure) return forcedFailure;
     return callOpenRouterReview(payload, "Gemini is not configured.");
   }
 
@@ -160,7 +183,7 @@ async function callGemini(payload) {
     },
   }));
 
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`, {
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${geminiModel()}:generateContent`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -182,11 +205,15 @@ async function callGemini(payload) {
 
   const data = await response.json();
   if (!response.ok) {
+    const forcedFailure = geminiFailure(response.status, data.error?.message ?? "Gemini request failed.");
+    if (forcedFailure) return forcedFailure;
     return callOpenRouterReview(payload, data.error?.message ?? "Gemini request failed.");
   }
 
   const text = data.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("").trim();
   if (!text) {
+    const forcedFailure = geminiFailure(502, "Gemini returned no text.");
+    if (forcedFailure) return forcedFailure;
     return callOpenRouterReview(payload, "Gemini returned no text.");
   }
 
@@ -200,12 +227,14 @@ async function callGemini(payload) {
           visualRationale: parsed.visualRationale,
           saferWording: parsed.saferWording,
           confidenceNote: parsed.confidenceNote,
-          model: MODEL,
+          model: geminiModel(),
           source: "gemini",
         },
       },
     };
   } catch {
+    const forcedFailure = geminiFailure(502, "Gemini returned invalid JSON.");
+    if (forcedFailure) return forcedFailure;
     return callOpenRouterReview(payload, "Gemini returned invalid JSON.");
   }
 }
@@ -237,7 +266,7 @@ async function callOpenRouterReview(payload, reason = "Gemini unavailable.") {
       "X-Title": "CoachLens Court",
     },
     body: JSON.stringify({
-      model: OPENROUTER_MODEL,
+      model: openRouterModel(),
       messages: [
         {
           role: "user",
@@ -277,7 +306,7 @@ async function callOpenRouterReview(payload, reason = "Gemini unavailable.") {
           visualRationale: parsed.visualRationale,
           saferWording: parsed.saferWording,
           confidenceNote: parsed.confidenceNote,
-          model: OPENROUTER_MODEL,
+          model: openRouterModel(),
           source: "openrouter",
         },
       },
@@ -309,16 +338,22 @@ function fallbackShareCopy(payload) {
 }
 
 async function callGeminiShareCopy(payload) {
-  if (AI_PROVIDER === "openrouter") {
+  if (aiProvider() === "openrouter") {
     return callOpenRouterShareCopy(payload);
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
+    if (aiProvider() === "gemini") {
+      return {
+        statusCode: 200,
+        payload: { shareCopy: fallbackShareCopy(payload) },
+      };
+    }
     return callOpenRouterShareCopy(payload);
   }
 
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`, {
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${geminiModel()}:generateContent`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -340,11 +375,23 @@ async function callGeminiShareCopy(payload) {
 
   const data = await response.json();
   if (!response.ok) {
+    if (aiProvider() === "gemini") {
+      return {
+        statusCode: 200,
+        payload: { shareCopy: fallbackShareCopy(payload) },
+      };
+    }
     return callOpenRouterShareCopy(payload);
   }
 
   const text = data.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("").trim();
   if (!text) {
+    if (aiProvider() === "gemini") {
+      return {
+        statusCode: 200,
+        payload: { shareCopy: fallbackShareCopy(payload) },
+      };
+    }
     return callOpenRouterShareCopy(payload);
   }
 
@@ -359,12 +406,18 @@ async function callGeminiShareCopy(payload) {
           highlightText: parsed.highlightText,
           hashtags: Array.isArray(parsed.hashtags) ? parsed.hashtags.slice(0, 8) : fallbackShareCopy(payload).hashtags,
           styles: Array.isArray(parsed.styles) ? parsed.styles.slice(0, 4) : fallbackShareCopy(payload).styles,
-          model: MODEL,
+          model: geminiModel(),
           source: "gemini",
         },
       },
     };
   } catch {
+    if (aiProvider() === "gemini") {
+      return {
+        statusCode: 200,
+        payload: { shareCopy: fallbackShareCopy(payload) },
+      };
+    }
     return callOpenRouterShareCopy(payload);
   }
 }
@@ -387,7 +440,7 @@ async function callOpenRouterShareCopy(payload) {
       "X-Title": "CoachLens Court",
     },
     body: JSON.stringify({
-      model: OPENROUTER_MODEL,
+      model: openRouterModel(),
       messages: [
         {
           role: "user",
@@ -426,7 +479,7 @@ async function callOpenRouterShareCopy(payload) {
           highlightText: parsed.highlightText,
           hashtags: Array.isArray(parsed.hashtags) ? parsed.hashtags.slice(0, 8) : fallbackShareCopy(payload).hashtags,
           styles: Array.isArray(parsed.styles) ? parsed.styles.slice(0, 4) : fallbackShareCopy(payload).styles,
-          model: OPENROUTER_MODEL,
+          model: openRouterModel(),
           source: "openrouter",
         },
       },
@@ -452,9 +505,9 @@ const server = createServer(async (request, response) => {
       ok: true,
       geminiConfigured: Boolean(process.env.GEMINI_API_KEY),
       openrouterConfigured: Boolean(process.env.OPENROUTER_API_KEY),
-      aiProvider: AI_PROVIDER,
-      model: MODEL,
-      openrouterModel: OPENROUTER_MODEL,
+      aiProvider: aiProvider(),
+      model: geminiModel(),
+      openrouterModel: openRouterModel(),
     });
     return;
   }
@@ -568,7 +621,7 @@ server.listen(PORT, "127.0.0.1", () => {
   console.log(`CoachLens Gemini proxy listening on http://127.0.0.1:${PORT}`);
   console.log(
     process.env.GEMINI_API_KEY
-      ? `Gemini model: ${MODEL}`
+      ? `Gemini model: ${geminiModel()}`
       : "Gemini key missing. Add GEMINI_API_KEY to .env.local and restart.",
   );
 });
