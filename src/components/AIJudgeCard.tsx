@@ -24,7 +24,7 @@ export function AIJudgeCard({ status, review, onRetry, canRetry }: AIJudgeCardPr
           <BrainCircuit size={20} />
           AI Coach Review
         </div>
-        <p>Asking Gemini to judge the pose-engine correction against sampled key frames...</p>
+        <p>Asking the AI coach judge to review the pose-engine correction...</p>
       </article>
     );
   }
@@ -64,7 +64,7 @@ export function AIJudgeCard({ status, review, onRetry, canRetry }: AIJudgeCardPr
       <div className="ai-judge-card__footer">
         <span>
           <ShieldAlert size={17} />
-          Model: {review.model}. The pose engine remains the source of measurements; Gemini is a visual review layer.
+          Model: {review.model}. The pose engine remains the source of measurements; the AI coach is a review layer.
         </span>
         {canRetry ? (
           <button className="retry-ai-button" type="button" onClick={onRetry}>

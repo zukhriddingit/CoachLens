@@ -17,7 +17,11 @@ function geminiModel() {
 }
 
 function openRouterModel() {
-  return process.env.OPENROUTER_MODEL ?? "openai/gpt-4o-mini";
+  return process.env.OPENROUTER_MODEL ?? "deepseek/deepseek-v3.1:free";
+}
+
+function activeModel() {
+  return aiProvider() === "openrouter" ? openRouterModel() : geminiModel();
 }
 
 function geminiFailure(statusCode, error) {
@@ -47,7 +51,7 @@ async function loadLocalEnv() {
 
 function sendJson(response, statusCode, payload) {
   response.writeHead(statusCode, {
-    "Access-Control-Allow-Origin": "http://127.0.0.1:5173",
+    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, X-Swing-Start, X-Swing-End, X-File-Extension",
     "Content-Type": "application/json",
@@ -506,7 +510,8 @@ const server = createServer(async (request, response) => {
       geminiConfigured: Boolean(process.env.GEMINI_API_KEY),
       openrouterConfigured: Boolean(process.env.OPENROUTER_API_KEY),
       aiProvider: aiProvider(),
-      model: geminiModel(),
+      model: activeModel(),
+      geminiModel: geminiModel(),
       openrouterModel: openRouterModel(),
     });
     return;
@@ -553,7 +558,7 @@ const server = createServer(async (request, response) => {
       ]);
 
       response.writeHead(200, {
-        "Access-Control-Allow-Origin": "http://127.0.0.1:5173",
+        "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, X-Swing-Start, X-Swing-End, X-File-Extension",
         "Content-Type": "video/mp4",
@@ -608,7 +613,7 @@ const server = createServer(async (request, response) => {
 server.on("error", (error) => {
   if (error.code === "EADDRINUSE") {
     console.error(
-      `CoachLens Gemini proxy could not start because http://127.0.0.1:${PORT} is already in use.`,
+      `CoachLens AI proxy could not start because http://127.0.0.1:${PORT} is already in use.`,
     );
     console.error("Stop the existing dev server or run: lsof -ti tcp:8787 | xargs kill");
     process.exit(1);
@@ -618,10 +623,7 @@ server.on("error", (error) => {
 });
 
 server.listen(PORT, "127.0.0.1", () => {
-  console.log(`CoachLens Gemini proxy listening on http://127.0.0.1:${PORT}`);
-  console.log(
-    process.env.GEMINI_API_KEY
-      ? `Gemini model: ${geminiModel()}`
-      : "Gemini key missing. Add GEMINI_API_KEY to .env.local and restart.",
-  );
+  console.log(`CoachLens AI proxy listening on http://127.0.0.1:${PORT}`);
+  console.log(`AI provider: ${aiProvider()}`);
+  console.log(`Active model: ${activeModel()}`);
 });

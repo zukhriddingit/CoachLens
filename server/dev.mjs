@@ -68,5 +68,5 @@ for (const port of ports) {
   await freePort(port);
 }
 
-run("Gemini proxy", process.execPath, [join(process.cwd(), "server/gemini.mjs")]);
+run("AI proxy", process.execPath, [join(process.cwd(), "server/gemini.mjs")]);
 run("Vite", process.execPath, [join(process.cwd(), "node_modules/vite/bin/vite.js"), "--host", "127.0.0.1"]);
