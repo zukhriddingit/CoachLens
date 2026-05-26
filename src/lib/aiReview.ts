@@ -6,8 +6,7 @@ type ReviewFrame = {
   mimeType: "image/jpeg";
 };
 
-const API_BASE =
-  import.meta.env.VITE_COURTLENS_API_URL ?? import.meta.env.VITE_COACHLENS_API_URL ?? "http://127.0.0.1:8787";
+const API_BASE = import.meta.env.VITE_COURTLENS_API_URL ?? "http://127.0.0.1:8787";
 
 function waitForMetadata(video: HTMLVideoElement): Promise<void> {
   return new Promise((resolve, reject) => {

@@ -5,7 +5,7 @@ import { spawn } from "node:child_process";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 
-const PORT = Number(process.env.COURTLENS_API_PORT ?? process.env.COACHLENS_API_PORT ?? 8787);
+const PORT = Number(process.env.COURTLENS_API_PORT ?? 8787);
 const MAX_VIDEO_BYTES = 80 * 1024 * 1024;
 
 function aiProvider() {

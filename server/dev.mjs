@@ -2,7 +2,7 @@ import { spawn } from "node:child_process";
 import { join } from "node:path";
 
 const children = [];
-const ports = [5173, Number(process.env.COURTLENS_API_PORT ?? process.env.COACHLENS_API_PORT ?? 8787)];
+const ports = [5173, Number(process.env.COURTLENS_API_PORT ?? 8787)];
 
 function freePort(port) {
   return new Promise((resolve) => {

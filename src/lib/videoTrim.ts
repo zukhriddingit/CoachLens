@@ -1,7 +1,6 @@
 import type { SwingSegment } from "../types";
 
-const API_BASE =
-  import.meta.env.VITE_COURTLENS_API_URL ?? import.meta.env.VITE_COACHLENS_API_URL ?? "http://127.0.0.1:8787";
+const API_BASE = import.meta.env.VITE_COURTLENS_API_URL ?? "http://127.0.0.1:8787";
 
 function extensionFor(file: File): string {
   const match = file.name.toLowerCase().match(/\.([a-z0-9]+)$/);
